@@ -17,7 +17,13 @@
         { id: "1", label: "阿峰", address: "0x2222222222222222222222222222222222222222", hasBalance: true, amount: "12345678.9", percentage: "1.2345" },
         { id: "2", label: "观察二号", address: "0x3333333333333333333333333333333333333333", hasBalance: false, amount: "0", percentage: "0" }
       ] } }) },
-      storage: { onChanged: { addListener() {} } }
+      storage: {
+        local: {
+          async get(key) { return { [key]: JSON.parse(localStorage.getItem(key) || "null") }; },
+          async set(items) { Object.entries(items).forEach(([key, value]) => localStorage.setItem(key, JSON.stringify(value))); }
+        },
+        onChanged: { addListener() {} }
+      }
     };
     document.querySelector(".remount").addEventListener("click", () => {
       const bar = document.querySelector(".bar");

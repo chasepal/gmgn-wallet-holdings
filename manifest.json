@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "GMGN 持仓观察",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "在 GMGN 代币页直接查看你关注的钱包是否持仓、数量与占比。",
   "permissions": ["storage"],
   "host_permissions": [
