@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "GMGN 持仓观察",
+  "version": "1.0.0",
+  "description": "在 GMGN 代币页直接查看你关注的钱包是否持仓、数量与占比。",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://robinhood-rpc.publicnode.com/*",
+    "https://rpc.mainnet.chain.robinhood.com/*",
+    "https://bsc-rpc.publicnode.com/*",
+    "https://bsc-dataseed.binance.org/*",
+    "https://ethereum-rpc.publicnode.com/*",
+    "https://cloudflare-eth.com/*",
+    "https://base-rpc.publicnode.com/*",
+    "https://mainnet.base.org/*",
+    "https://rpc.xlayer.tech/*",
+    "https://xlayerrpc.okx.com/*",
+    "https://arbitrum-one-rpc.publicnode.com/*",
+    "https://arb1.arbitrum.io/*",
+    "https://optimism-rpc.publicnode.com/*",
+    "https://mainnet.optimism.io/*",
+    "https://polygon-bor-rpc.publicnode.com/*",
+    "https://polygon-rpc.com/*",
+    "https://avalanche-c-chain-rpc.publicnode.com/*",
+    "https://api.avax.network/*",
+    "https://blast-rpc.publicnode.com/*",
+    "https://rpc.blast.io/*",
+    "https://rpc.stable.xyz/*",
+    "https://solana-rpc.publicnode.com/*",
+    "https://api.mainnet-beta.solana.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "GMGN 持仓观察",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://gmgn.ai/*", "https://*.gmgn.ai/*"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
+

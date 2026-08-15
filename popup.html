@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GMGN 持仓观察</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <header><div><h1>持仓观察</h1><p>只保存公开钱包地址，本地存储</p></div><span id="count">0/50</span></header>
+    <form id="form">
+      <label>备注名<input id="label" maxlength="40" placeholder="例如：阿峰" required></label>
+      <label>钱包地址<input id="address" autocomplete="off" spellcheck="false" placeholder="0x… 或 Solana 地址" required></label>
+      <button type="submit">添加关注地址</button>
+      <p id="error" role="alert"></p>
+    </form>
+    <section><h2>已关注</h2><div id="empty">还没有关注地址</div><div id="list"></div></section>
+    <footer>进入 GMGN 代币页后，右上角会直接显示是否持仓、数量和总供应占比。</footer>
+  </main>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
+
