@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0
+
+- 持仓悬浮按钮支持鼠标和触控拖动，并在本机记住位置。
+- 拖动与点击分离，避免拖动后误开面板；靠近屏幕边缘时面板自动换向。
+
 ## 1.0.1
 
 - 修复发布 ZIP 遗漏后台依赖模块，导致 Chrome 报 `Service worker registration failed. Status code: 3`。

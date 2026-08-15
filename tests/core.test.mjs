@@ -43,5 +43,7 @@ test("content runtime uses one observer and no polling", async () => {
   assert.equal((source.match(/new MutationObserver/g) || []).length, 1);
   assert.equal(source.includes("setInterval("), false);
   assert.equal(source.includes("holdings.resolve"), true);
+  assert.equal(source.includes("gmgnWalletHoldings.dockPosition.v1"), true);
+  assert.equal(source.includes("pointerdown"), true);
+  assert.equal(source.includes("setPointerCapture"), true);
 });
-

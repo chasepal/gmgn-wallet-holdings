@@ -8,6 +8,7 @@
 
 - 在插件弹窗中添加公开 EVM 或 Solana 钱包地址和备注。
 - 进入 GMGN 代币页后，右上角立即显示这些地址是否持有当前代币。
+- 持仓按钮可拖动到任意位置，并在本机记住上次位置。
 - 有持仓时显示代币数量和占总供应量比例；点击标签查看全部地址。
 - 支持 GMGN 的 BSC、Robinhood、XLayer、Ethereum、Base、Arbitrum、Optimism、Polygon、Avalanche、Blast、Stable、Solana 页面。
 - 地址只保存在本机 `chrome.storage.local`；查询直接发送到对应公链的公开 RPC。
