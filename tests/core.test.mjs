@@ -36,6 +36,13 @@ test("manifest uses minimal permissions and scoped GMGN content scripts", async 
   assert.deepEqual(manifest.permissions, ["storage"]);
   assert.equal(manifest.content_scripts[0].matches.includes("<all_urls>"), false);
   assert.equal(manifest.host_permissions.some((value) => value.includes("gmgn.ai")), false);
+  assert.equal(manifest.host_permissions.includes("https://fomo.family/*"), true);
+  assert.deepEqual(manifest.content_scripts[1], {
+    matches: ["https://fomo.family/tokens/*"],
+    js: ["lib/fomo-holders.js", "fomo-token.js"],
+    run_at: "document_idle",
+  });
+  assert.deepEqual(manifest.content_scripts[0].js, ["lib/fomo-holders.js", "content.js"]);
 });
 
 test("content runtime uses one observer and no polling", async () => {
@@ -46,4 +53,6 @@ test("content runtime uses one observer and no polling", async () => {
   assert.equal(source.includes("gmgnWalletHoldings.dockPosition.v1"), true);
   assert.equal(source.includes("pointerdown"), true);
   assert.equal(source.includes("setPointerCapture"), true);
+  assert.equal(source.includes("FOMO 持仓总数"), true);
+  assert.equal(source.includes("gmgnFomoHolderTotals.v1"), true);
 });

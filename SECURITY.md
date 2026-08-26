@@ -21,9 +21,11 @@
 
 用途仅为识别当前链与代币地址，并渲染持仓标签。插件没有 `<all_urls>` 权限，也不会在 X、邮箱、交易所或其他网站运行。
 
+另一个内容脚本只允许运行于 `https://fomo.family/tokens/*`，用途是读取当前 FOMO 代币页明确的 `Holders (N)` 聚合标签。它不读取 FOMO 登录态、Cookie、Authorization、持仓用户列表或钱包数据。
+
 ### 公共 RPC 域名访问范围
 
-`host_permissions` 仅包含 `manifest.json` 中逐项列出的 BSC、Robinhood、XLayer、Ethereum、Base、Arbitrum、Optimism、Polygon、Avalanche、Blast、Stable 和 Solana 公共 RPC。
+`host_permissions` 仅包含 `manifest.json` 中逐项列出的 BSC、Robinhood、XLayer、Ethereum、Base、Arbitrum、Optimism、Polygon、Avalanche、Blast、Stable 和 Solana 公共 RPC，以及 FOMO 页面 `https://fomo.family/*`。
 
 查询内容：
 
@@ -55,6 +57,14 @@ chrome.storage.local（仅本机浏览器扩展空间）
 公开钱包地址 + Token 地址 → 对应第三方公共 RPC
         ↓
 余额、总供应量、精度 → 插件本地计算数量与占比 → 页面显示
+
+用户主动打开 FOMO 代币页
+        ↓
+读取可见的 `Holders (N)` 聚合标签
+        ↓
+链 + 完整 CA + 聚合人数 + 观测时间 → chrome.storage.local
+        ↓
+匹配的 GMGN 代币页显示 FOMO 持仓总数
 ```
 
 没有开发者后端、用户账户、统计 SDK、广告 SDK或遥测上传。
@@ -90,6 +100,7 @@ GMGN 路由或页面结构改变后，标签可能暂时无法显示。插件使
 - `manifest.json`：权限与允许访问的域名；
 - `background.js`、`lib/holdings.js`：RPC 请求内容；
 - `content.js`：页面读取与显示逻辑；
+- `fomo-token.js`、`lib/fomo-holders.js`：FOMO 聚合人数读取与本地缓存逻辑；
 - `popup.js`、`lib/settings.js`：本地地址存储逻辑。
 
 安全问题请通过 GitHub Issues 报告；请勿在 Issue 中粘贴任何私钥、助记词或敏感身份信息。

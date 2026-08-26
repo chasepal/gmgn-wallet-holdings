@@ -7,7 +7,7 @@ import { join } from "node:path";
 
 test("extension root contains every manifest entrypoint", async () => {
   const files = new Set(await readdir(new URL("../", import.meta.url)));
-  for (const file of ["manifest.json", "background.js", "content.js", "popup.html", "popup.js", "popup.css"]) {
+  for (const file of ["manifest.json", "background.js", "content.js", "fomo-token.js", "popup.html", "popup.js", "popup.css"]) {
     assert.equal(files.has(file), true, `${file} missing`);
   }
 });
@@ -33,5 +33,8 @@ test("release packager includes every service-worker module", async () => {
   const entries = new Set(listing.stdout.trim().split("\n"));
   for (const modulePath of importedModules) {
     assert.equal(entries.has(modulePath), true, `${modulePath} missing from release ZIP`);
+  }
+  for (const entry of manifest.content_scripts.flatMap((script) => script.js || [])) {
+    assert.equal(entries.has(entry), true, `${entry} missing from release ZIP`);
   }
 });

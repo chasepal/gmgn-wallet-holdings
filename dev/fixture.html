@@ -25,11 +25,27 @@
         onChanged: { addListener() {} }
       }
     };
+    localStorage.setItem("gmgnFomoHolderTotals.v1", JSON.stringify({
+      schemaVersion: 1,
+      records: {
+        "bsc:0x1111111111111111111111111111111111111111": {
+          schemaVersion: 1,
+          chain: "bsc",
+          address: "0x1111111111111111111111111111111111111111",
+          holderCount: 494,
+          approximate: false,
+          display: "494",
+          observedAt: Date.now(),
+          url: "https://fomo.family/tokens/bnb/0x1111111111111111111111111111111111111111"
+        }
+      }
+    }));
     document.querySelector(".remount").addEventListener("click", () => {
       const bar = document.querySelector(".bar");
       bar.replaceWith(bar.cloneNode(true));
     });
   </script>
+  <script src="/lib/fomo-holders.js"></script>
   <script src="/content.js"></script>
 </body>
 </html>

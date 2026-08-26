@@ -10,6 +10,7 @@ const assets = [
   "manifest.json",
   "background.js",
   "content.js",
+  "fomo-token.js",
   "popup.html",
   "popup.css",
   "popup.js",
@@ -24,12 +25,14 @@ const requiredEntries = [
   "manifest.json",
   manifest.background.service_worker,
   "content.js",
+  "fomo-token.js",
   "popup.html",
   "popup.css",
   "popup.js",
   "lib/chains.js",
   "lib/settings.js",
-  "lib/holdings.js"
+  "lib/holdings.js",
+  "lib/fomo-holders.js"
 ];
 
 await mkdir(dirname(output), { recursive: true });
