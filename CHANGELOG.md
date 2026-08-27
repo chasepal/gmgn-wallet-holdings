@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0
+
+- FOMO 持仓总数改为后台自动同步：正常登录 FOMO 后，GMGN 代币页直接请求对应聚合数据，不再需要手动打开 FOMO 代币页。
+- 短期 FOMO 会话只保存在内存中；请求严格按支持的链、网络 ID 与完整 CA 校验，并且只返回 `totalHolders`。
+
 ## 1.2.0
 
 - 新增 FOMO 代币页聚合持仓总数：只读取明确的 `Holders (N)` 标签，区分页面上的链上总持有人数字；目前支持 BSC、Ethereum、Base、Robinhood、Solana 映射。

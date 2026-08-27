@@ -2,7 +2,7 @@
 
 一个功能单一、可分享、不需要私人 API 的 Chrome 扩展。
 
-> 只读取公开链上数据。插件不会、也没有能力读取私钥、助记词、GMGN 登录态或交易账户。
+> 只读取公开链上数据与 FOMO 公开聚合数据。插件不会、也没有能力读取私钥、助记词、GMGN 登录态或交易账户。
 
 ## 功能
 
@@ -10,7 +10,7 @@
 - 进入 GMGN 代币页后，右上角立即显示这些地址是否持有当前代币。
 - 持仓按钮可拖动到任意位置，并在本机记住上次位置。
 - 有持仓时显示代币数量和占总供应量比例；点击标签查看全部地址。
-- 支持在 FOMO 代币页读取明确的 `Holders (N)` 聚合人数，并在 GMGN 持仓面板显示 FOMO 持仓总数。
+- 正常登录 FOMO 后，自动读取明确的 `Holders (N)` 聚合人数，并在 GMGN 持仓面板显示 FOMO 持仓总数。
 - 支持 GMGN 的 BSC、Robinhood、XLayer、Ethereum、Base、Arbitrum、Optimism、Polygon、Avalanche、Blast、Stable、Solana 页面。
 - 地址只保存在本机 `chrome.storage.local`；查询直接发送到对应公链的公开 RPC。
 
@@ -29,11 +29,12 @@
 | 权限 | 用途 | 不会做什么 |
 |---|---|---|
 | `storage` | 将用户主动填写的公开钱包地址和备注保存在浏览器本地 | 不读取网站 Cookie、密码、私钥或其他扩展的数据 |
+| `webRequest` | 仅观察可信 FOMO 页面发往 FOMO 聚合接口的短期 `Authorization`，用于自动同步 | 不改写请求，不把凭证写入磁盘或发送给开发者 |
 | GMGN 内容脚本范围 | 只在 `https://gmgn.ai/*` 与 `https://*.gmgn.ai/*` 显示持仓结果 | 不注入其他网站，没有 `<all_urls>` 权限 |
 | FOMO 内容脚本范围 | 只在 `https://fomo.family/tokens/*` 读取可见的 `Holders (N)` 聚合标签 | 不读取 FOMO 登录态、用户列表或钱包数据 |
 | 列出的公链 RPC 域名 | 调用 ERC-20 `balanceOf/totalSupply/decimals` 或 Solana Token RPC | 不签名、不授权、不发交易，不调用用户钱包 |
 
-插件**没有**申请 `tabs`、`cookies`、`history`、`webRequest`、`clipboardWrite`、`scripting` 或 `<all_urls>`。
+插件**没有**申请 `tabs`、`cookies`、`history`、`clipboardWrite`、`scripting` 或 `<all_urls>`。
 
 完整列表见 [权限与风险](SECURITY.md)。
 
@@ -41,7 +42,7 @@
 
 - 只判断当前公开链上余额，不追踪跨链归属、关联钱包或交易所内部余额。
 - 数量与占比来自链上实时查询；公开 RPC 繁忙时可能短暂失败，重新进入页面即可重试。
-- FOMO 持仓总数来自你主动打开的对应 FOMO 代币页；首次使用时点击面板中的同步链接，扩展不会自动打开网页。
+- FOMO 持仓总数默认由后台自动同步；首次使用只需正常登录 FOMO 一次，无需从 GMGN 面板手动打开对应代币页。短期会话只保存在内存中，过期后需重新登录 FOMO。
 - FOMO 链映射目前覆盖 BSC、Ethereum、Base、Robinhood、Solana；XLayer、Arbitrum 等其他已支持的 GMGN 链仍可正常查询钱包持仓，但不显示 FOMO 总数。
 - FOMO 只读取页面明确的 `Holders (N)` 聚合标签，不读取持仓用户列表；数据按链、完整 CA 和观测时间保存在本机。
 - 本插件不包含价格、费用、评分、交易或自动打开 X 等功能。

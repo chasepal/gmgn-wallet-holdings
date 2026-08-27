@@ -32,7 +32,8 @@ const requiredEntries = [
   "lib/chains.js",
   "lib/settings.js",
   "lib/holdings.js",
-  "lib/fomo-holders.js"
+  "lib/fomo-holders.js",
+  "lib/fomo-session.js"
 ];
 
 await mkdir(dirname(output), { recursive: true });

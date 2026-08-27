@@ -1,4 +1,5 @@
 import { getChain } from "./lib/chains.js";
+import { createFomoSessionBridge } from "./lib/fomo-session.js";
 import { loadWatchlist, STORAGE_KEY } from "./lib/settings.js";
 import { queryEvmHoldings, querySolanaHoldings } from "./lib/holdings.js";
 
@@ -6,6 +7,8 @@ const CACHE_TTL_MS = 12_000;
 const CACHE_MAX = 200;
 const cache = new Map();
 const inFlight = new Map();
+const fomoSessionBridge = createFomoSessionBridge({ chromeApi: chrome });
+fomoSessionBridge.install();
 
 function cacheKey(chain, token, wallets) {
   return `${chain}:${token}:${wallets.map((wallet) => `${wallet.id}:${wallet.address}`).join("|")}`;
@@ -42,6 +45,20 @@ async function resolveHoldings(input) {
 }
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message?.type === "fomo.holder.resolve") {
+    if (!isTrustedGmgnSender(_sender)) {
+      sendResponse({ ok: false, error: "不受信任的页面请求" });
+      return false;
+    }
+    fomoSessionBridge.resolve({ subjects: [message.payload] })
+      .then((data) => sendResponse({ ok: true, data }))
+      .catch((error) => sendResponse({
+        ok: false,
+        code: error?.code || "FOMO_HOLDER_FAILED",
+        error: error?.message || "FOMO 聚合读取失败",
+      }));
+    return true;
+  }
   if (message?.type !== "holdings.resolve") return false;
   resolveHoldings(message.payload)
     .then((data) => sendResponse({ ok: true, data }))
@@ -53,3 +70,13 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "local" && changes[STORAGE_KEY]) cache.clear();
 });
 
+function isTrustedGmgnSender(sender) {
+  const value = sender?.tab?.url || sender?.url || "";
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" &&
+      (url.hostname === "gmgn.ai" || url.hostname.endsWith(".gmgn.ai"));
+  } catch {
+    return false;
+  }
+}

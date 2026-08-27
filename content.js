@@ -4,6 +4,7 @@
   const POSITION_KEY = "gmgnWalletHoldings.dockPosition.v1";
   const FOMO = globalThis.__GWH_FOMO_HOLDERS__;
   const FOMO_STORAGE_KEY = FOMO?.STORAGE_KEY || "gmgnFomoHolderTotals.v1";
+  const FOMO_MESSAGE_TYPE = "fomo.holder.resolve";
   const API = globalThis.__GWH_TEST__?.runtime || globalThis.chrome?.runtime;
   const STORAGE = globalThis.__GWH_TEST__?.storage || globalThis.chrome?.storage;
   let currentRouteKey = "";
@@ -149,12 +150,12 @@
     if (!url) return "";
     const record = latestFomo;
     if (!record) {
-      return `<div class="fomo-total"><span>FOMO 持仓总数</span><strong>未同步</strong><a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">打开 FOMO 同步</a></div>`;
+      return `<div class="fomo-total"><span>FOMO 持仓总数</span><strong>自动同步中</strong><small>需先正常登录 FOMO 一次</small></div>`;
     }
     const age = Math.max(0, Date.now() - Number(record.observedAt || 0));
     const stale = age > Number(FOMO.STALE_MS || 24 * 60 * 60 * 1_000);
     const prefix = record.approximate ? "约 " : "";
-    return `<div class="fomo-total${stale ? " stale" : ""}"><span>FOMO 持仓总数</span><strong>${prefix}${formatFomoCount(record.holderCount)}</strong><small>${stale ? "缓存较旧" : "来自 FOMO Holders 聚合"}</small><a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">更新</a></div>`;
+    return `<div class="fomo-total${stale ? " stale" : ""}"><span>FOMO 持仓总数</span><strong>${prefix}${formatFomoCount(record.holderCount)}</strong><small>${stale ? "缓存较旧，自动更新中" : "来自 FOMO Holders 自动同步"}</small></div>`;
   }
 
   function fomoPillSuffix() {
@@ -224,7 +225,7 @@
       if (!API?.sendMessage) throw new Error("扩展需要重新加载");
       const [response, fomo] = await Promise.all([
         API.sendMessage({ type: "holdings.resolve", payload: route }),
-        readFomoTotal(route),
+        syncFomoTotal(route),
       ]);
       if (ownRequest !== requestId || currentRouteKey !== route.key) return;
       if (!response?.ok) throw new Error(response?.error || "查询失败");
@@ -243,6 +244,27 @@
       return await FOMO.readStored(route, { storage: STORAGE.local });
     } catch {
       return null;
+    }
+  }
+
+  async function syncFomoTotal(route) {
+    const cached = await readFomoTotal(route);
+    if (!API?.sendMessage || !FOMO?.writeStored || !STORAGE?.local) return cached;
+    try {
+      const response = await API.sendMessage({
+        type: FOMO_MESSAGE_TYPE,
+        payload: { chain: route.chain, address: route.token },
+      });
+      if (!response?.ok) return cached;
+      const record = response.data?.records?.find?.((candidate) =>
+        candidate?.chain === route.chain &&
+        String(candidate?.address || "").toLowerCase() === String(route.token || "").toLowerCase(),
+      );
+      if (!record) return cached;
+      await FOMO.writeStored(record, { storage: STORAGE.local });
+      return record;
+    } catch {
+      return cached;
     }
   }
 
@@ -272,6 +294,10 @@
     addEventListener("popstate", () => schedule(true), { passive: true });
     addEventListener("hashchange", () => schedule(true), { passive: true });
     if (globalThis.navigation?.addEventListener) navigation.addEventListener("navigate", () => schedule(true));
+    addEventListener("focus", () => refreshFomoTotal(), { passive: true });
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) refreshFomoTotal();
+    });
     addEventListener("resize", () => {
       if (dockPosition) applyDockPosition(dockPosition);
     }, { passive: true });

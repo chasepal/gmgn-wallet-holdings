@@ -33,10 +33,11 @@ test("normalizes, deduplicates and labels public wallet addresses", () => {
 
 test("manifest uses minimal permissions and scoped GMGN content scripts", async () => {
   const manifest = JSON.parse(await readFile(new URL("../manifest.json", import.meta.url), "utf8"));
-  assert.deepEqual(manifest.permissions, ["storage"]);
+  assert.deepEqual(manifest.permissions, ["storage", "webRequest"]);
   assert.equal(manifest.content_scripts[0].matches.includes("<all_urls>"), false);
   assert.equal(manifest.host_permissions.some((value) => value.includes("gmgn.ai")), false);
   assert.equal(manifest.host_permissions.includes("https://fomo.family/*"), true);
+  assert.equal(manifest.host_permissions.includes("https://prod-api.fomo.family/*"), true);
   assert.deepEqual(manifest.content_scripts[1], {
     matches: ["https://fomo.family/tokens/*"],
     js: ["lib/fomo-holders.js", "fomo-token.js"],
@@ -55,4 +56,13 @@ test("content runtime uses one observer and no polling", async () => {
   assert.equal(source.includes("setPointerCapture"), true);
   assert.equal(source.includes("FOMO 持仓总数"), true);
   assert.equal(source.includes("gmgnFomoHolderTotals.v1"), true);
+  assert.equal(source.includes("fomo.holder.resolve"), true);
+  assert.equal(source.includes("打开 FOMO 同步"), false);
+});
+
+test("background installs the automatic FOMO session bridge", async () => {
+  const source = await readFile(new URL("../background.js", import.meta.url), "utf8");
+  assert.equal(source.includes('"./lib/fomo-session.js"'), true);
+  assert.equal(source.includes("fomoSessionBridge.install()"), true);
+  assert.equal(source.includes('message?.type === "fomo.holder.resolve"'), true);
 });

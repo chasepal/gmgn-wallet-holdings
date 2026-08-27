@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "GMGN 持仓观察",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "在 GMGN 代币页直接查看你关注的钱包持仓，并显示 FOMO 持仓总数。",
-  "permissions": ["storage"],
+  "permissions": ["storage", "webRequest"],
   "host_permissions": [
     "https://robinhood-rpc.publicnode.com/*",
     "https://rpc.mainnet.chain.robinhood.com/*",
@@ -28,7 +28,8 @@
     "https://rpc.stable.xyz/*",
     "https://solana-rpc.publicnode.com/*",
     "https://api.mainnet-beta.solana.com/*",
-    "https://fomo.family/*"
+    "https://fomo.family/*",
+    "https://prod-api.fomo.family/*"
   ],
   "background": {
     "service_worker": "background.js",

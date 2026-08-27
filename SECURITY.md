@@ -10,6 +10,8 @@
 - 用户自定义备注；
 - 地址类型（EVM 或 Solana）。
 
+FOMO 聚合缓存只包含链、完整 CA、聚合人数和观测时间；短期 FOMO 会话不写入本地存储。
+
 不保存私钥、助记词、API Key、GMGN Cookie 或交易凭证。
 
 ### GMGN 页面访问范围
@@ -21,11 +23,15 @@
 
 用途仅为识别当前链与代币地址，并渲染持仓标签。插件没有 `<all_urls>` 权限，也不会在 X、邮箱、交易所或其他网站运行。
 
-另一个内容脚本只允许运行于 `https://fomo.family/tokens/*`，用途是读取当前 FOMO 代币页明确的 `Holders (N)` 聚合标签。它不读取 FOMO 登录态、Cookie、Authorization、持仓用户列表或钱包数据。
+另一个内容脚本只允许运行于 `https://fomo.family/tokens/*`，用途是读取当前 FOMO 代币页明确的 `Holders (N)` 聚合标签。后台只观察可信 FOMO 页面发往 `prod-api.fomo.family` 的短期 `Authorization`，用于 GMGN 页面自动同步，不读取 Cookie、持仓用户列表或钱包数据。
+
+### FOMO 自动同步
+
+`webRequest` 只匹配 `https://prod-api.fomo.family/*`，并且仅接受 `fomo.family` 页面发起的请求。凭证只保存在 Service Worker 内存中，限制为短时有效；不会写入 `chrome.storage.local`，不会出现在返回给页面的数据中，也不会发送给开发者服务器。
 
 ### 公共 RPC 域名访问范围
 
-`host_permissions` 仅包含 `manifest.json` 中逐项列出的 BSC、Robinhood、XLayer、Ethereum、Base、Arbitrum、Optimism、Polygon、Avalanche、Blast、Stable 和 Solana 公共 RPC，以及 FOMO 页面 `https://fomo.family/*`。
+`host_permissions` 仅包含 `manifest.json` 中逐项列出的 BSC、Robinhood、XLayer、Ethereum、Base、Arbitrum、Optimism、Polygon、Avalanche、Blast、Stable 和 Solana 公共 RPC、FOMO 页面 `https://fomo.family/*`，以及 FOMO 聚合接口 `https://prod-api.fomo.family/*`。
 
 查询内容：
 
@@ -39,7 +45,7 @@
 - 无 `tabs`：不能枚举或控制浏览器标签页；
 - 无 `cookies`：不能读取 GMGN 或其他网站登录态；
 - 无 `history`：不能读取浏览历史；
-- 无 `webRequest`：不能拦截或改写网络流量；
+- `webRequest` 不是全局拦截：仅观察可信 FOMO 页面发往 FOMO 聚合接口的请求头，用于短期自动同步；不改写网络流量；
 - 无 `scripting`：不能临时向任意页面注入代码；
 - 无 `<all_urls>`：不能在所有网站运行；
 - 无剪贴板权限：不能读取或静默改写剪贴板；
@@ -58,9 +64,13 @@ chrome.storage.local（仅本机浏览器扩展空间）
         ↓
 余额、总供应量、精度 → 插件本地计算数量与占比 → 页面显示
 
-用户主动打开 FOMO 代币页
+FOMO 页面正常登录并发出可信聚合请求
         ↓
-读取可见的 `Holders (N)` 聚合标签
+后台暂存短期 Authorization（仅内存）
+        ↓
+GMGN 代币页自动请求精确链 + 完整 CA 的 FOMO 聚合接口
+        ↓
+只保留 `totalHolders` 聚合人数
         ↓
 链 + 完整 CA + 聚合人数 + 观测时间 → chrome.storage.local
         ↓
@@ -101,6 +111,7 @@ GMGN 路由或页面结构改变后，标签可能暂时无法显示。插件使
 - `background.js`、`lib/holdings.js`：RPC 请求内容；
 - `content.js`：页面读取与显示逻辑；
 - `fomo-token.js`、`lib/fomo-holders.js`：FOMO 聚合人数读取与本地缓存逻辑；
+- `lib/fomo-session.js`：FOMO 短期会话捕获、精确 CA 请求与聚合响应归一化；
 - `popup.js`、`lib/settings.js`：本地地址存储逻辑。
 
 安全问题请通过 GitHub Issues 报告；请勿在 Issue 中粘贴任何私钥、助记词或敏感身份信息。
